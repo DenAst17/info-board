@@ -1,9 +1,19 @@
-<script setup lang="ts">
-import TheWelcome from '@/components/TheWelcome.vue'
+<script lang="ts">
+import HomeHeader from '@/components/HomeHeader.vue';
+import PostList from '@/components/PostList.vue';
+import { defineComponent } from 'vue'
+export default defineComponent ({
+  components: {
+    HomeHeader,
+    PostList
+  }
+})
 </script>
 
 <template>
-  <main>
-    <TheWelcome />
-  </main>
+  <HomeHeader />
+  <PostList />
 </template>
+
+<style>
+</style>
