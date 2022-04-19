@@ -21,8 +21,18 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue')
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('../views/ProfileInfoView.vue')
+    },
+    {
+      path: '/activities',
+      name: 'activities',
+      component: () => import('../views/ProfileActivitiesView.vue')
     }
   ]
 })
 
-export default router
+export default router;

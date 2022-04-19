@@ -7,6 +7,8 @@ import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import Checkbox from 'primevue/checkbox';
 import Divider from 'primevue/divider';
+import { useStore } from '@/stores/store'
+import { mapStores } from 'pinia'
 export default defineComponent({
   data() {
     return {
@@ -24,8 +26,10 @@ export default defineComponent({
           // const token = credential.accessToken;
           // The signed-in user info.
           const user = result.user;
+          this.mainStore.loginInfo = user;
           console.log(user.displayName);
-          router.push({ name: "users" });
+          console.log(this.mainStore.loginInfo.displayName);
+          router.push({ name: "home" });
           // ...
         }).catch((error) => {
           // Handle Errors here.
@@ -44,12 +48,15 @@ export default defineComponent({
     InputText,
     Checkbox,
     Divider
+  },
+  computed: {
+    ...mapStores(useStore),
   }
 });
 </script>
 
 <template>
-  <div class = "wrapper">
+  <div class="loginViewWrapper">
     <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
       <div class="text-center mb-5">
         <img src="../assets/Vuelogo.png" alt="Image" height="50" class="mb-3">
@@ -85,11 +92,12 @@ export default defineComponent({
 </template>
 
 <style>
-.wrapper{
+.loginViewWrapper {
   display: flex;
   justify-content: center;
   align-items: center;
 }
+
 .surface-card {
   min-width: 500px;
   max-width: 500px;
