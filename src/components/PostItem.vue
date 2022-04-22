@@ -3,7 +3,7 @@ import { defineComponent } from 'vue'
 import Card from 'primevue/card';
 import Button from 'primevue/button';
 import {PostsCollection} from '../database/posts';
-let postscollection = new PostsCollection();
+/*let postscollection = new PostsCollection();*/
 export default defineComponent({
   data() {
     return {
@@ -21,7 +21,7 @@ export default defineComponent({
     }
   },
   mounted() {
-    console.log(123);
+    //console.log(PostItem rendered);
     
   }
 })
