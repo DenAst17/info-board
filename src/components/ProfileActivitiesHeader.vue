@@ -25,9 +25,9 @@ export default defineComponent({
                     to: '/profile'
 				},
 				{
-					label: 'Activities',
-					icon: 'pi pi-users',
-                    to: '/activities'
+					label: 'Home page',
+					icon: 'pi pi-home',
+                    to: '/'
 				},
 				{
                     label: 'Sign out',
@@ -45,11 +45,14 @@ export default defineComponent({
             signOut(auth).then(() => {
                 console.log("Sign-out successful")
                 this.isLogin = true;
-                window.location.reload()
+                router.push({ name: "home" });
                 // Sign-out successful.
             }).catch((error) => {
             // An error happened.
             });
+        },
+        addPost(){
+
         }
     },
     components: {
@@ -92,6 +95,7 @@ export default defineComponent({
     <header>
         <div class="wrapper">
             <div>
+                <Button class="addPostButton" label="Add post" @click="addPost()" />
                 <span class="p-input-icon-left">
                     <i class="pi pi-search" />
                     <InputText class = "searchInput" type="text" v-model="searchText" placeholder="Search" />
