@@ -16,6 +16,7 @@ import router from "../router";
 export default defineComponent({
     data() {
         return {
+            userName: "",
             isLogin: false,
             searchText: "",
             items: [
@@ -50,6 +51,9 @@ export default defineComponent({
             }).catch((error) => {
             // An error happened.
             });
+        },
+        toggle(event: any){
+            (this.$refs.menu as any).toggle(event);
         }
     },
     components: {
@@ -68,10 +72,10 @@ export default defineComponent({
                 const uid = user.uid;
                 this.isLogin = true;
                 if(user.displayName){
-                    ((this.$refs.userName as any).textContent as String | null) = user.displayName; // what is a type of this.$refs.userName
+                    this.userName = user.displayName; // what is a type of this.$refs.userName
                 }
-                else{
-                    ((this.$refs.userName as any).textContent as String | null) = user.email; // what is a type of this.$refs.userName
+                else if(user.email) {
+                    this.userName = user.email; // what is a type of this.$refs.userName
                 }
                 this.mainStore.loginInfo = user;
                 console.log(user);
@@ -103,11 +107,9 @@ export default defineComponent({
                 </Button>
             </div>
             <div v-show="isLogin" class = "profile">
-                <div class = "userInfo">
-                    <h2 ref="userName"></h2>
-                </div>
                 <div class = "menu">
-                    <Menu :model="items" />
+                    <Button type="button" @click="toggle">{{userName}}</Button>
+                    <Menu ref="menu" :model="items" :popup="true" />
                 </div>
               <!--  <div class = "login">
                     <Button class="signOutButton" label="Sign Out" @click="signOut()" />

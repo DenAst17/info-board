@@ -10,13 +10,19 @@ import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { firebase } from "../config/firebase";
 import Divider from 'primevue/divider';
 import Menu from 'primevue/menu';
+import Dialog from 'primevue/dialog';
+import Textarea from 'primevue/textarea';
 
 import router from "../router";
 
 export default defineComponent({
     data() {
         return {
+            userName: "",
+            display: false,
             isLogin: false,
+            postTitle: "",
+            postText: "",
             searchText: "",
             items: [
 				{
@@ -52,14 +58,27 @@ export default defineComponent({
             });
         },
         addPost(){
-
+            this.display = true;
+            this.postTitle = "";
+            this.postText = "";
+        },
+        cancel(){
+            this.display = false;
+            this.postTitle = "";
+            this.postText = "";
+        },
+        toggle(event: any){
+            (this.$refs.menu as any).toggle(event);
         }
+        
     },
     components: {
         Button,
         InputText,
         Menu,
-        Divider
+        Divider,
+        Dialog,
+        Textarea
     },
     mounted() {
         //console.log(123);
@@ -71,10 +90,10 @@ export default defineComponent({
                 const uid = user.uid;
                 this.isLogin = true;
                 if(user.displayName){
-                    ((this.$refs.userName as any).textContent as String | null) = user.displayName; // what is a type of this.$refs.userName
+                    this.userName = user.displayName;
                 }
-                else{
-                    ((this.$refs.userName as any).textContent as String | null) = user.email; // what is a type of this.$refs.userName
+                else if(user.email) {
+                    this.userName = user.email;
                 }
                 this.mainStore.loginInfo = user;
                 console.log(user);
@@ -101,17 +120,30 @@ export default defineComponent({
                     <InputText class = "searchInput" type="text" v-model="searchText" placeholder="Search" />
                 </span>
             </div>
+            <Dialog v-model:visible="display" :breakpoints="{'10000px': '50vw', '1200px': '75vw', '640px': '100vw'}">
+                <template #header>
+                    <span class="p-float-label">
+                        <InputText id="username" type="text" v-model="postTitle" />
+                        <label for="username">Title</label>
+                    </span>
+                </template>
+                
+                <Textarea class="postTextArea" v-model="postText" :autoResize="true" rows="5" cols="30" placeholder="Write your post here" />
+
+                <template #footer>
+                    <Button label="Cancel" @click="cancel()" icon="pi pi-times" class="p-button-text"/>
+                    <Button label="Create" icon="pi pi-check" autofocus />
+                </template>
+            </Dialog>
             <div v-show="!isLogin" class="login">   
                 <Button class="loginButton" label="Login">
                     <RouterLink class="router" to="/login">Login</RouterLink>
                 </Button>
             </div>
             <div v-show="isLogin" class = "profile">
-                <div class = "userInfo">
-                    <h2 ref="userName"></h2>
-                </div>
                 <div class = "menu">
-                    <Menu :model="items" />
+                    <Button type="button" @click="toggle">{{userName}}</Button>
+                    <Menu ref="menu" :model="items" :popup="true" />
                 </div>
               <!--  <div class = "login">
                     <Button class="signOutButton" label="Sign Out" @click="signOut()" />
@@ -170,5 +202,15 @@ export default defineComponent({
 }
 .menu{
     align-self:center;
+}
+@media (min-width: 1200px)
+{
+.postTextArea{
+    width: 100%;
+}
+}
+.postTextArea{
+    margin-top  : 5px;
+    width: 100%;
 }
 </style>
