@@ -1,7 +1,7 @@
 import { BaseDatabase } from "./base.database";
 
-export class PostsCollection extends BaseDatabase{
-    constructor(){
-        super("posts");
-    }
+export class PostsCollection extends BaseDatabase {
+  constructor() {
+    super("posts");
+  }
 }

@@ -1,19 +1,11 @@
-<script lang="ts">
-import HomeHeader from '@/components/HomeHeader.vue';
-import PostList from '@/components/PostList.vue';
-import { defineComponent } from 'vue'
-export default defineComponent ({
-  components: {
-    HomeHeader,
-    PostList
-  }
-})
+<script setup lang="ts">
+import HeaderNavigation from "@/components/HeaderNavigation.vue";
+import PostList from "@/components/PostList.vue";
 </script>
 
 <template>
-  <HomeHeader />
+  <HeaderNavigation />
   <PostList />
 </template>
 
-<style>
-</style>
+<style></style>

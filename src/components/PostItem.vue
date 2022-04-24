@@ -30,7 +30,6 @@ export default defineComponent({
 <template>
   <Card>
     <template #header>
-        
     </template>
     <template #title>
         Some title
