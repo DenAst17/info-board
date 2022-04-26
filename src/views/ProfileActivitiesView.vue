@@ -1,17 +1,17 @@
 <script lang="ts">
-import UserActivitiesHeader from '@/components/ProfileActivitiesHeader.vue';
+import NavigationHeader from '@/components/NavigationHeader.vue';
 import PostList from '@/components/PostList.vue';
 import { defineComponent } from 'vue'
 export default defineComponent ({
   components: {
-    UserActivitiesHeader,
+    NavigationHeader,
     PostList
   }
 })
 </script>
 
 <template>
-  <UserActivitiesHeader />
+  <NavigationHeader v-bind:isHomePage="false"/>
   <PostList />
 </template>
 

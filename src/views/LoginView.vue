@@ -6,6 +6,7 @@ import { RouterLink, RouterView } from 'vue-router'
 import { firebase } from "../config/firebase";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from "firebase/auth";
 import router from "../router";
+import useUsers from '@/composition/useUsers';
 
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
@@ -14,6 +15,7 @@ import Divider from 'primevue/divider';
 
 import { useStore } from '@/stores/store'
 import { mapStores } from 'pinia'
+import { User } from '@/entities/User';
 
 export default defineComponent({
   data() {
@@ -35,6 +37,22 @@ export default defineComponent({
           // The signed-in user info.
           const user = result.user;
           this.mainStore.loginInfo = user;
+
+          const u = useUsers();
+          const email = user.email;
+          const password = "";
+          const photo_url = user.photoURL;
+          const reg_date = user.metadata.creationTime;
+          const user_name = user.displayName;
+          u.addUser(
+            new User({
+            email, 
+            password, 
+            photo_url, 
+            reg_date, 
+            user_name
+            }));
+
           console.log(user.displayName);
           console.log(this.mainStore.loginInfo.displayName);
           router.push({ name: "home" });
@@ -50,7 +68,7 @@ export default defineComponent({
           // ...
         });
     },
-    login(){
+    login() {
       const auth = getAuth();
       signInWithEmailAndPassword(auth, this.email, this.password)
         .then((userCredential) => {
@@ -83,11 +101,17 @@ export default defineComponent({
 <template>
   <div class="loginViewWrapper">
     <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
+      <div class="homeRouterButtonWrapper">
+        <Button label="Back to home page">
+          <RouterLink class="router" to="/">Home page</RouterLink>
+        </Button>
+      </div>
       <div class="text-center mb-5">
         <img src="../assets/Vuelogo.png" alt="Image" height="50" class="mb-3">
         <div class="text-900 text-3xl font-medium mb-3">Welcome Back</div>
         <span class="text-600 font-medium line-height-3">Don't have an account?</span>
-        <RouterLink class="font-medium no-underline ml-2 text-blue-500 cursor-pointer router" to="/register">Create today!</RouterLink> 
+        <RouterLink class="font-medium no-underline ml-2 text-blue-500 cursor-pointer router" to="/register">Create
+          today!</RouterLink>
       </div>
 
       <div>
@@ -101,7 +125,7 @@ export default defineComponent({
           <div class="flex align-items-center">
             <!--<Checkbox id="rememberme1" :binary="true" v-model="checked" class="mr-2"></Checkbox>
             <label for="rememberme1">Remember me</label>-->
-          </div> 
+          </div>
           <a class="font-medium no-underline ml-2 text-blue-500 text-right cursor-pointer">Forgot password?</a>
         </div>
 
@@ -117,6 +141,11 @@ export default defineComponent({
 </template>
 
 <style>
+.homeRouterButtonWrapper {
+  display: flex;
+  justify-content: end;
+}
+
 .loginViewWrapper {
   display: flex;
   justify-content: center;

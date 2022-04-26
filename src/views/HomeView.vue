@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import HeaderNavigation from "@/components/HeaderNavigation.vue";
+import NavigationHeader from "@/components/NavigationHeader.vue";
 import PostList from "@/components/PostList.vue";
 </script>
 
 <template>
-  <HeaderNavigation />
+  <NavigationHeader v-bind:isHomePage="true"/>
   <PostList />
 </template>
 

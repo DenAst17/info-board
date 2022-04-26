@@ -6,6 +6,7 @@ import { RouterLink, RouterView } from 'vue-router'
 import { firebase } from "../config/firebase";
 import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword } from "firebase/auth";
 import router from "../router";
+import useUsers from '@/composition/useUsers';
 
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
@@ -14,6 +15,7 @@ import Divider from 'primevue/divider';
 
 import { useStore } from '@/stores/store'
 import { mapStores } from 'pinia'
+import { User } from '@/entities/User';
 
 export default defineComponent({
   data() {
@@ -35,6 +37,22 @@ export default defineComponent({
           // The signed-in user info.
           const user = result.user;
           this.mainStore.loginInfo = user;
+
+          const u = useUsers();
+          const email = user.email;
+          const password = "";
+          const photo_url = user.photoURL;
+          const reg_date = user.metadata.creationTime;
+          const user_name = user.displayName;
+          u.addUser(
+            new User({
+            email, 
+            password, 
+            photo_url, 
+            reg_date, 
+            user_name
+            }));
+
           console.log(user.displayName);
           console.log(this.mainStore.loginInfo.displayName);
           router.push({ name: "home" });
@@ -83,6 +101,11 @@ export default defineComponent({
 <template>
   <div class="loginViewWrapper">
     <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
+      <div class="homeRouterButtonWrapper">
+        <Button label="Back to home page">
+          <RouterLink class="router" to="/">Home page</RouterLink>
+        </Button>
+      </div>
       <div class="text-center mb-5">
         <img src="../assets/Vuelogo.png" alt="Image" height="50" class="mb-3">
         <div class="text-900 text-3xl font-medium mb-3">Register here</div>
@@ -109,6 +132,11 @@ export default defineComponent({
 </template>
 
 <style>
+.homeRouterButtonWrapper{
+  display: flex;
+  justify-content: end;
+}
+
 .loginViewWrapper {
   display: flex;
   justify-content: center;

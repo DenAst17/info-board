@@ -1,28 +1,37 @@
 <script lang="ts">
-import { defineComponent } from 'vue'
 import Card from 'primevue/card';
 import Button from 'primevue/button';
-import {PostsCollection} from '../database/posts';
+import { PostsCollection } from '../database/posts';
+import { Post } from "../entities/Post";
 /*let postscollection = new PostsCollection();*/
+import { defineComponent } from 'vue'
 export default defineComponent({
   data() {
     return {
       count: 1,
       posts: undefined
-    } 
+    }
+  },
+  props: {
+    post: Post
   },
   components: {
     Card,
     Button
   },
   methods: {
-    test(){
+    test() {
       this.count
+    },
+    timestampToDate(ts:number) {
+      var d = new Date();
+      d.setTime(ts);
+      return ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear();
     }
   },
   mounted() {
-    //console.log(PostItem rendered);
-    
+    console.log(this.post);
+
   }
 })
 </script>
@@ -32,20 +41,18 @@ export default defineComponent({
     <template #header>
     </template>
     <template #title>
-        Some title
+      {{ (post as unknown).title }}
     </template>
     <template #content>
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Inventore sed consequuntur error repudiandae 
-        numquam deserunt quisquam repellat libero asperiores earum nam nobis, culpa ratione quam perferendis 
-        esse, cupiditate neque quas mit deste! This is description!
+      {{ (post as unknown).description }}
     </template>
     <template #footer>
-      <div class = "postFooter">
+      <div class="postFooter">
         <div>
           denast
         </div>
-        <div class = "postDate">
-          19.04.22
+        <div class="postDate">
+          {{ timestampToDate((post as unknown).reg_date.seconds * 1000) }}
         </div>
       </div>
     </template>
@@ -53,7 +60,7 @@ export default defineComponent({
 </template>
 
 <style>
-.postFooter{
+.postFooter {
   display: flex;
   justify-content: space-between;
 }

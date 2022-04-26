@@ -1,9 +1,12 @@
 import { db } from "@/config/firebase";
+import type { User } from "@/entities/User";
 import type { CollectionReference, QueryConstraint } from "@firebase/firestore";
 import {
   collection,
   doc,
   setDoc,
+  addDoc,
+  deleteDoc,
   getDocs,
   query,
   where,
@@ -24,14 +27,17 @@ export abstract class BaseDatabase {
   async getByID(id: string) {
     // TODO: Get element by ID from collection
   }
-  async create() {
-    // TODO: Create new element
+  async create(document: User) {
+    const docRef = await addDoc(this.collection, document.userObject);
+    console.log("Document written with ID: ", docRef.id);
   }
-  async update(id: string) {
-    // TODO: update
+  async update(id: string, document: Object) {
+    const docRef = await setDoc(doc(this.collection, id), document);
+    console.log("Document updated with ID: ", id);
   }
-  async remove(id: string): Promise<boolean> {
-    return Promise.resolve(false); // TODO: remove element by id
+  async remove(id: string) {
+    deleteDoc(doc(this.collection, id));
+    console.log("Document deleted with ID: ", id);
   }
   async search(...queryConstraints: QueryConstraint[]) {
     return getDocs(query(this.collection, ...queryConstraints));

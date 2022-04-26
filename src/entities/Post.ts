@@ -15,8 +15,8 @@ export class Post extends BaseEntity {
     return `Author: Vas`;
   }
 
-  description: string;
-  title: string;
-  reg_date: string | Date;
-  user_id: string;
+  description: string | undefined;
+  title: string | undefined;
+  reg_date: string | Date | undefined;
+  user_id: string | undefined;
 }
