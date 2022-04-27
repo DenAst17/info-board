@@ -5,7 +5,7 @@ import PostList from "@/components/PostList.vue";
 
 <template>
   <NavigationHeader v-bind:isHomePage="true"/>
-  <PostList />
+  <PostList v-bind:isHomePage="true" />
 </template>
 
 <style></style>

@@ -11,6 +11,15 @@ export class Post extends BaseEntity {
     return data;
   }
 
+  get docObject(){
+    return {
+      description: this.description,
+      title: this.title,
+      reg_date: this.reg_date,
+      user_id: this.user_id
+    }
+  }
+
   get authoredTitle() {
     return `Author: Vas`;
   }

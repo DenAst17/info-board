@@ -3,11 +3,14 @@ import { RouterLink, RouterView } from 'vue-router'
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
 import { defineComponent } from 'vue'
-import { useStore } from '@/stores/store';
-import { mapStores } from 'pinia'
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { firebase } from "../config/firebase";
 import Menu from 'primevue/menu';
+
+import { useStore } from '@/stores/store';
+import { mapStores } from 'pinia'
+import { User } from '@/entities/User';
+import useUsers from '@/composition/useUsers';
 
 import router from "../router";
 
@@ -89,12 +92,18 @@ export default defineComponent({
                 // User is signed in, see docs for a list of available properties
                 // https://firebase.google.com/docs/reference/js/firebase.User  
                 const uid = user.uid;
-                this.isLogin = true;
                 if (user.displayName) {
                     this.userName = user.displayName; // what is a type of this.$refs.userName
+                    this.isLogin = true;
                 }
                 else if (user.email) {
-                    this.userName = user.email; // what is a type of this.$refs.userName
+                    const u = useUsers();
+                    u.search(user.email as string).then(() => {
+                        this.mainStore.loginUserID = u.usersID[0];
+                        this.userName = u.users.value[0].user_name as string;
+                        console.log(this.userName);
+                        this.isLogin = true;
+                    })
                 }
                 this.mainStore.loginInfo = user;
                 console.log(user);
@@ -112,24 +121,24 @@ export default defineComponent({
 </script>
 
 <template>
-        <div class="wrapper">
-            <div v-show="!isLogin" class="login">
-                <Button class="loginButton" label="Login">
-                    <RouterLink class="router" to="/login">Login</RouterLink>
-                </Button>
-            </div>
-            <div v-show="isLogin" class="profile">
-                <div class="menu" v-if="(this as any).isHomePage">
-                    <Button type="button" @click="toggle">{{ userName }}</Button>
-                    <Menu ref="menu" :model="items" :popup="true" />
-                </div>
-                <div class="menu" v-else>
-                    <Button type="button" @click="toggle">{{ userName }}</Button>
-                    <Menu ref="menu" :model="items1" :popup="true" />
-                </div>
-                
-            </div>
+    <div class="wrapper">
+        <div v-show="!isLogin" class="login">
+            <Button class="loginButton" label="Login">
+                <RouterLink class="router" to="/login">Login</RouterLink>
+            </Button>
         </div>
+        <div v-show="isLogin" class="profile">
+            <div class="menu" v-if="(this as any).isHomePage">
+                <Button type="button" @click="toggle">{{ userName }}</Button>
+                <Menu ref="menu" :model="items" :popup="true" />
+            </div>
+            <div class="menu" v-else>
+                <Button type="button" @click="toggle">{{ userName }}</Button>
+                <Menu ref="menu" :model="items1" :popup="true" />
+            </div>
+
+        </div>
+    </div>
 </template>
 
 <style>

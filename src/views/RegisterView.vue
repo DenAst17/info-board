@@ -22,7 +22,8 @@ export default defineComponent({
     return {
       checked: false,
       email: "",
-      password: ""
+      password: "",
+      userName: ""
     }
   },
   methods: {
@@ -44,18 +45,23 @@ export default defineComponent({
           const photo_url = user.photoURL;
           const reg_date = user.metadata.creationTime;
           const user_name = user.displayName;
-          u.addUser(
-            new User({
-            email, 
-            password, 
-            photo_url, 
-            reg_date, 
-            user_name
-            }));
 
-          console.log(user.displayName);
-          console.log(this.mainStore.loginInfo.displayName);
-          router.push({ name: "home" });
+          u.search(email as string).then(() => {
+            if (u.users.value.length == 0) {
+              u.addUser(new User({
+                email,
+                password,
+                photo_url,
+                reg_date,
+                user_name
+              }));
+            }
+            else {
+              this.mainStore.loginUserID = u.usersID[0];
+            }
+            console.log(user.displayName);
+            router.push({ name: "home" });
+          })
           // ...
         }).catch((error) => {
           // Handle Errors here.
@@ -68,15 +74,40 @@ export default defineComponent({
           // ...
         });
     },
-    register(){
+    emailAndPasswordRegister() {
       const auth = getAuth();
       createUserWithEmailAndPassword(auth, this.email, this.password)
         .then((userCredential) => {
           // Signed in 
           const user = userCredential.user;
           this.mainStore.loginInfo = user;
-          console.log(user);
-          router.push({ name: "home" });
+
+          const u = useUsers();
+          const email = user.email;
+          const password = this.password;
+          const photo_url = "";
+          const reg_date = Date.now();
+          const user_name = this.userName;
+
+          u.search(email as string).then(() => {
+            if (u.users.value.length == 0) {
+              u.addUser(new User({
+                email,
+                password,
+                photo_url,
+                reg_date,
+                user_name
+              })).then((res) => {
+                this.mainStore.loginUserID = res.id;
+              })
+            }
+            else {
+              this.mainStore.loginUserID = u.usersID[0];
+            }
+            console.log(this.mainStore.loginUserID);
+            console.log(user);
+            router.push({ name: "home" });
+          })
           // ...
         })
         .catch((error) => {
@@ -110,7 +141,8 @@ export default defineComponent({
         <img src="../assets/Vuelogo.png" alt="Image" height="50" class="mb-3">
         <div class="text-900 text-3xl font-medium mb-3">Register here</div>
         <span class="text-600 font-medium line-height-3">Already registered?</span>
-        <RouterLink class="font-medium no-underline ml-2 text-blue-500 cursor-pointer router" to="/login">Log in!</RouterLink> 
+        <RouterLink class="font-medium no-underline ml-2 text-blue-500 cursor-pointer router" to="/login">Log in!
+        </RouterLink>
       </div>
 
       <div>
@@ -120,7 +152,10 @@ export default defineComponent({
         <label for="password1" class="block text-900 font-medium mb-2">Password</label>
         <InputText v-model="password" id="password1" type="password" class="w-full mb-3" />
 
-        <Button @click="register()" label="Register" icon="pi pi-user" class="w-full"></Button>
+        <label for="userName1" class="block text-900 font-medium mb-2">UserName</label>
+        <InputText v-model="userName" id="userName1" type="text" class="w-full mb-3" />
+
+        <Button @click="emailAndPasswordRegister()" label="Register" icon="pi pi-user" class="w-full"></Button>
         <Divider />
         <div class="googleAuthContainer">
           <button @click="googleSignIn" class="login-with-google-btn">Sign In with Google</button>
@@ -132,7 +167,7 @@ export default defineComponent({
 </template>
 
 <style>
-.homeRouterButtonWrapper{
+.homeRouterButtonWrapper {
   display: flex;
   justify-content: end;
 }

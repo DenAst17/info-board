@@ -12,7 +12,7 @@ export default defineComponent ({
 
 <template>
   <NavigationHeader v-bind:isHomePage="false"/>
-  <PostList />
+  <PostList v-bind:isHomePage="false"/>
 </template>
 
 <style>

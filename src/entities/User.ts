@@ -15,7 +15,7 @@ export class User extends BaseEntity {
     return `Author: Vas`;
   }
 
-  get userObject(){
+  get docObject(){
     return {
       email: this.email,
       password: this.password,

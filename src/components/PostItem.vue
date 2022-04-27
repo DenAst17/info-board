@@ -30,7 +30,7 @@ export default defineComponent({
     }
   },
   mounted() {
-    console.log(this.post);
+    //console.log(this.post);
 
   }
 })

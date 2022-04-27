@@ -1,4 +1,5 @@
 import { db } from "@/config/firebase";
+import type { Post } from "@/entities/Post";
 import type { User } from "@/entities/User";
 import type { CollectionReference, QueryConstraint } from "@firebase/firestore";
 import {
@@ -7,6 +8,7 @@ import {
   setDoc,
   addDoc,
   deleteDoc,
+  getDoc,
   getDocs,
   query,
   where,
@@ -25,14 +27,24 @@ export abstract class BaseDatabase {
     return getDocs(this.collection);
   }
   async getByID(id: string) {
-    // TODO: Get element by ID from collection
+    const docRef = doc(this.collection, id);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log("Document data:", docSnap.data());
+    } else {
+      console.log("No such document!");
+      // doc.data() will be undefined in this case
+    }
+
   }
-  async create(document: User) {
-    const docRef = await addDoc(this.collection, document.userObject);
+  async create(document: User|Post) {
+    const docRef = await addDoc(this.collection, document.docObject);
     console.log("Document written with ID: ", docRef.id);
+    return docRef;
   }
-  async update(id: string, document: Object) {
-    const docRef = await setDoc(doc(this.collection, id), document);
+  async update(document: User|Post, id: string) {
+    const docRef = await setDoc(doc(this.collection, id), document.docObject);
     console.log("Document updated with ID: ", id);
   }
   async remove(id: string) {
@@ -40,6 +52,7 @@ export abstract class BaseDatabase {
     console.log("Document deleted with ID: ", id);
   }
   async search(...queryConstraints: QueryConstraint[]) {
-    return getDocs(query(this.collection, ...queryConstraints));
+    const docs = getDocs(query(this.collection, ...queryConstraints));
+    return docs;
   }
 }

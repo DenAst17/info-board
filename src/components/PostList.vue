@@ -20,6 +20,9 @@ export default defineComponent({
 
     };
   },
+  props: {
+    isHomePage: Boolean,
+  },
   components: {
     PostItem,
     InputText,
@@ -67,7 +70,7 @@ export default defineComponent({
   <div v-if="isLoading">Loading...</div>
   <Teleport to="#navigation_header">
     <div>
-      <Button class="addPostButton" label="Add post" @click="addPostDialogEnable()" />
+      <Button v-if="!(this as any).isHomePage" class="addPostButton" label="Add post" @click="addPostDialogEnable()" />
     </div>
     <span class="p-input-icon-left">
       <i class="pi pi-search" />

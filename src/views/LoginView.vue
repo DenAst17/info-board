@@ -22,7 +22,8 @@ export default defineComponent({
     return {
       checked: false,
       email: "",
-      password: ""
+      password: "",
+      userName: ""
     }
   },
   methods: {
@@ -44,18 +45,24 @@ export default defineComponent({
           const photo_url = user.photoURL;
           const reg_date = user.metadata.creationTime;
           const user_name = user.displayName;
-          u.addUser(
-            new User({
-            email, 
-            password, 
-            photo_url, 
-            reg_date, 
-            user_name
-            }));
 
-          console.log(user.displayName);
-          console.log(this.mainStore.loginInfo.displayName);
-          router.push({ name: "home" });
+          u.search(email as string).then(() => {
+            if (u.users.value.length == 0) {
+              u.addUser(new User({
+                email,
+                password,
+                photo_url,
+                reg_date,
+                user_name
+              })).then((res) => {
+                this.mainStore.loginUserID = res.id;
+              })
+            }
+            else {
+              this.mainStore.loginUserID = u.usersID[0];
+            }
+            router.push({ name: "home" });
+          })
           // ...
         }).catch((error) => {
           // Handle Errors here.
@@ -68,15 +75,25 @@ export default defineComponent({
           // ...
         });
     },
-    login() {
+    emailAndPasswordLogin() {
       const auth = getAuth();
       signInWithEmailAndPassword(auth, this.email, this.password)
         .then((userCredential) => {
           // Signed in 
           const user = userCredential.user;
           this.mainStore.loginInfo = user;
-          console.log(user);
-          router.push({ name: "home" });
+
+          const u = useUsers();
+          const email = user.email;
+
+          u.search(email as string).then(() => {
+            if (u.users.value.length > 0) {
+              this.mainStore.loginUserID = u.usersID[0];
+              console.log(this.mainStore.loginUserID);
+            }
+            console.log(user);
+            router.push({ name: "home" });
+          })
           // ...
         })
         .catch((error) => {
@@ -129,7 +146,7 @@ export default defineComponent({
           <a class="font-medium no-underline ml-2 text-blue-500 text-right cursor-pointer">Forgot password?</a>
         </div>
 
-        <Button @click="login()" label="Sign In" icon="pi pi-user" class="w-full"></Button>
+        <Button @click="emailAndPasswordLogin()" label="Sign In" icon="pi pi-user" class="w-full"></Button>
         <Divider />
         <div class="googleAuthContainer">
           <button @click="googleSignIn" class="login-with-google-btn">Sign In with Google</button>

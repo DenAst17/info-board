@@ -5,41 +5,43 @@ import { User } from "@/entities/User";
 import { UsersCollection } from "@/database/users";
 
 export default function useUsers() {
-    const users = ref<User[]>([]);
-    const isLoading = ref(false);
-    const response = ref({});
-    const usersFirestore = new UsersCollection();
-  
-    function effectiveSearch(searchQuery?: string) {
-      if (searchQuery) {
-        return usersFirestore.search(where("user_name", "==", searchQuery));
-      }
-      return usersFirestore.search();
-    }
-  
-    function search(searchQuery?: string) {
-      isLoading.value = true;
-      effectiveSearch(searchQuery)
-        .then((res) => {
-          response.value = res;
-          users.value = res.docs.map((doc) => new User(doc.data()));
-        })
-        .finally(() => {
-          isLoading.value = false;
-        });
-    }
+  const users = ref<User[]>([]);
+  const response = ref({});
+  const usersFirestore = new UsersCollection();
+  let usersID: Array<string> = [];
 
-    function addUser(user: User){
-        console.log(user);
-        usersFirestore.create(user);
+  function effectiveSearch(searchQuery?: string) {
+    if (searchQuery) {
+      return usersFirestore.search(where("email", "==", searchQuery));
     }
-  
-    return {
-      users,
-      usersFirestore,
-      isLoading,
-      search,
-      addUser
-    };
+    return usersFirestore.search();
   }
-  
+
+  function search(searchQuery?: string) {
+    return effectiveSearch(searchQuery)
+      .then((res) => {
+        res.forEach((doc) => {
+          usersID.push(doc.id);
+          //console.log(doc.id, " => ", doc.data());
+        });
+        users.value = res.docs.map((doc) => new User(doc.data()));
+      })
+  }
+
+  function addUser(user: User) {
+    return usersFirestore.create(user);
+  }
+
+  function setUser(user: User, id: string) {
+    usersFirestore.update(user, id);
+  }
+
+  return {
+    users,
+    usersFirestore,
+    usersID,
+    search,
+    addUser,
+    setUser
+  };
+}

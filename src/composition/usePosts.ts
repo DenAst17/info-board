@@ -10,6 +10,10 @@ export default function usePosts(query: Record<string, unknown> = {}) {
   const response = ref({});
   const postsFirestore = new PostsCollection();
 
+  function addPost(post: Post) {
+    return postsFirestore.create(post);
+  }
+
   function effectiveSearch(searchQuery?: string) {
     if (searchQuery) {
       return postsFirestore.search(where("title", "==", searchQuery));
@@ -36,5 +40,6 @@ export default function usePosts(query: Record<string, unknown> = {}) {
     postsFirestore,
     isLoading,
     search,
+    addPost
   };
 }
