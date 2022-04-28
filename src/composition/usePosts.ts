@@ -14,26 +14,37 @@ export default function usePosts(query: Record<string, unknown> = {}) {
     return postsFirestore.create(post);
   }
 
-  function effectiveSearch(searchQuery?: string) {
-    if (searchQuery) {
-      return postsFirestore.search(where("title", "==", searchQuery));
+  function effectiveSearch(searchQuery?: string, secondSearchQuery?:string) {
+    if (arguments.length == 1 || !secondSearchQuery) {
+      if (searchQuery) {
+        return postsFirestore.search(where("title", "==", searchQuery));
+      }
+      return postsFirestore.search();
     }
-    return postsFirestore.search();
+    else {
+      if (searchQuery && secondSearchQuery) {
+        return postsFirestore.search(where("title", "==", searchQuery), where("user_id", "==", secondSearchQuery));
+      }
+      if(secondSearchQuery){
+        return postsFirestore.search(where("user_id", "==", secondSearchQuery));
+      }
+      return postsFirestore.search();
+    }
   }
 
-  function search(searchQuery?: string) {
+  function search(searchQuery?: string, secondSearchQuery?:string) {
     isLoading.value = true;
-    effectiveSearch(searchQuery)
+    console.log(secondSearchQuery);
+    effectiveSearch(searchQuery, secondSearchQuery)
       .then((res) => {
         response.value = res;
         posts.value = res.docs.map((doc) => new Post(doc.data()));
+        console.log("value = ",posts.value);
       })
       .finally(() => {
         isLoading.value = false;
       });
   }
-
-  search(query?.search as string);
 
   return {
     posts,

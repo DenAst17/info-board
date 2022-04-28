@@ -6,7 +6,6 @@ import { RouterLink, RouterView } from 'vue-router'
 import { firebase } from "../config/firebase";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signInWithEmailAndPassword } from "firebase/auth";
 import router from "../router";
-import useUsers from '@/composition/useUsers';
 
 import Button from 'primevue/button';
 import InputText from 'primevue/inputtext';
@@ -16,6 +15,7 @@ import Divider from 'primevue/divider';
 import { useStore } from '@/stores/store'
 import { mapStores } from 'pinia'
 import { User } from '@/entities/User';
+import useUsers from '@/composition/useUsers';
 
 export default defineComponent({
   data() {

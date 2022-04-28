@@ -12,6 +12,9 @@ import Checkbox from 'primevue/checkbox';
 import Divider from 'primevue/divider';
 import Menu from 'primevue/menu';
 
+import { User } from "@/entities/User";
+import useUsers from "../composition/useUsers";
+
 import { useStore } from '@/stores/store'
 import { mapStores } from 'pinia'
 
@@ -19,7 +22,7 @@ export default defineComponent({
     data() {
         return {
             isLogin: false,
-            email: "",
+            userName: "",
             password: "",
             items: [
                 {
@@ -73,12 +76,12 @@ export default defineComponent({
                 // https://firebase.google.com/docs/reference/js/firebase.User  
                 const uid = user.uid;
                 this.isLogin = true;
-                if (user.displayName) {
-                    (this.email as any) = user.displayName; // what is a type of this.$refs.userName
-                }
-                else {
-                    (this.email as any) = user.email; // what is a type of this.$refs.userName
-                }
+                const u = useUsers();
+                u.search(user.email as string).then(() => {
+                    this.mainStore.loginUserID = u.usersID[0];
+                    this.userName = u.users.value[0].user_name as string;
+                    this.isLogin = true;
+                })
                 this.mainStore.loginInfo = user;
                 console.log(user);
                 // ...
@@ -96,7 +99,7 @@ export default defineComponent({
         <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
             <div class="text-center mb-5">
                 <img src="../assets/Vuelogo.png" alt="Image" height="50" class="mb-3">
-                <div class="text-900 text-3xl font-medium mb-3">Welcome to your profile, {{ email }}</div>
+                <div class="text-900 text-3xl font-medium mb-3">Welcome to your profile, {{ userName }}</div>
             </div>
             <div class="menu">
                 <Menu :model="items" />

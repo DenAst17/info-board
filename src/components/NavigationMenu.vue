@@ -92,21 +92,14 @@ export default defineComponent({
                 // User is signed in, see docs for a list of available properties
                 // https://firebase.google.com/docs/reference/js/firebase.User  
                 const uid = user.uid;
-                if (user.displayName) {
-                    this.userName = user.displayName; // what is a type of this.$refs.userName
+                const u = useUsers();
+                u.search(user.email as string).then(() => {
+                    this.mainStore.loginUserID = u.usersID[0];
+                    this.userName = u.users.value[0].user_name as string;
                     this.isLogin = true;
-                }
-                else if (user.email) {
-                    const u = useUsers();
-                    u.search(user.email as string).then(() => {
-                        this.mainStore.loginUserID = u.usersID[0];
-                        this.userName = u.users.value[0].user_name as string;
-                        console.log(this.userName);
-                        this.isLogin = true;
-                    })
-                }
+                })
                 this.mainStore.loginInfo = user;
-                console.log(user);
+                console.log("User logged = ", user);
                 // ...
             } else {
                 this.isLogin = false;

@@ -10,7 +10,7 @@ export default function useUsers() {
   const usersFirestore = new UsersCollection();
   let usersID: Array<string> = [];
 
-  function effectiveSearch(searchQuery?: string) {
+  function emailSearch(searchQuery?: string) {
     if (searchQuery) {
       return usersFirestore.search(where("email", "==", searchQuery));
     }
@@ -18,7 +18,7 @@ export default function useUsers() {
   }
 
   function search(searchQuery?: string) {
-    return effectiveSearch(searchQuery)
+    return emailSearch(searchQuery)
       .then((res) => {
         res.forEach((doc) => {
           usersID.push(doc.id);
@@ -36,12 +36,17 @@ export default function useUsers() {
     usersFirestore.update(user, id);
   }
 
+  function getUser(id:string){
+    return usersFirestore.getByID(id);
+  }
+
   return {
     users,
     usersFirestore,
     usersID,
     search,
     addUser,
-    setUser
+    setUser,
+    getUser
   };
 }

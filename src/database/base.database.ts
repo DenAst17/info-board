@@ -29,14 +29,8 @@ export abstract class BaseDatabase {
   async getByID(id: string) {
     const docRef = doc(this.collection, id);
     const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      console.log("Document data:", docSnap.data());
-    } else {
-      console.log("No such document!");
-      // doc.data() will be undefined in this case
-    }
-
+    //console.log(docSnap.data());
+    return docSnap.data();
   }
   async create(document: User|Post) {
     const docRef = await addDoc(this.collection, document.docObject);
