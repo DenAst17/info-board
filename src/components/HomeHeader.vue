@@ -5,7 +5,6 @@ import InputText from 'primevue/inputtext';
 import { defineComponent } from 'vue'
 import { useStore } from '@/stores/store';
 import { mapStores } from 'pinia'
-import type { AnymatchFn } from 'vite';
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { firebase } from "../config/firebase";
 import Divider from 'primevue/divider';
@@ -111,12 +110,6 @@ export default defineComponent({
                     <Button type="button" @click="toggle">{{userName}}</Button>
                     <Menu ref="menu" :model="items" :popup="true" />
                 </div>
-              <!--  <div class = "login">
-                    <Button class="signOutButton" label="Sign Out" @click="signOut()" />
-                    <Button class="profileButton">
-                        <RouterLink class="router" to="/profile">Profile</RouterLink>
-                    </Button>
-                </div> -->
             </div>
         </div>
     </header>
@@ -148,17 +141,8 @@ export default defineComponent({
     display:flex;
     flex-direction: column;
 }
-.userInfo h2{
-    margin: 5px;
-}
-.userInfo{
-    text-align: center;
-}
 
 @media (max-width: 800px){
-    .userInfo h2{
-        display: none;
-    }
     .profile{
         width: 200px;
     }

@@ -14,13 +14,16 @@ import Divider from 'primevue/divider';
 
 import { useStore } from '@/stores/store'
 import { mapStores } from 'pinia'
+import { User } from '@/entities/User';
+import useUsers from '@/composition/useUsers';
 
 export default defineComponent({
   data() {
     return {
       checked: false,
       email: "",
-      password: ""
+      password: "",
+      userName: ""
     }
   },
   methods: {
@@ -35,9 +38,31 @@ export default defineComponent({
           // The signed-in user info.
           const user = result.user;
           this.mainStore.loginInfo = user;
-          console.log(user.displayName);
-          console.log(this.mainStore.loginInfo.displayName);
-          router.push({ name: "home" });
+
+          const u = useUsers();
+          const email = user.email;
+          const password = "";
+          const photo_url = user.photoURL;
+          const reg_date = user.metadata.creationTime;
+          const user_name = user.displayName;
+
+          u.search(email as string).then(() => {
+            if (u.users.value.length == 0) {
+              u.addUser(new User({
+                email,
+                password,
+                photo_url,
+                reg_date,
+                user_name
+              })).then((res) => {
+                this.mainStore.loginUserID = res.id;
+              })
+            }
+            else {
+              this.mainStore.loginUserID = u.usersID[0];
+            }
+            router.push({ name: "home" });
+          })
           // ...
         }).catch((error) => {
           // Handle Errors here.
@@ -50,15 +75,25 @@ export default defineComponent({
           // ...
         });
     },
-    login(){
+    emailAndPasswordLogin() {
       const auth = getAuth();
       signInWithEmailAndPassword(auth, this.email, this.password)
         .then((userCredential) => {
           // Signed in 
           const user = userCredential.user;
           this.mainStore.loginInfo = user;
-          console.log(user);
-          router.push({ name: "home" });
+
+          const u = useUsers();
+          const email = user.email;
+
+          u.search(email as string).then(() => {
+            if (u.users.value.length > 0) {
+              this.mainStore.loginUserID = u.usersID[0];
+              console.log(this.mainStore.loginUserID);
+            }
+            console.log(user);
+            router.push({ name: "home" });
+          })
           // ...
         })
         .catch((error) => {
@@ -83,11 +118,17 @@ export default defineComponent({
 <template>
   <div class="loginViewWrapper">
     <div class="surface-card p-4 shadow-2 border-round w-full lg:w-6">
+      <div class="homeRouterButtonWrapper">
+        <Button label="Back to home page">
+          <RouterLink class="router" to="/">Home page</RouterLink>
+        </Button>
+      </div>
       <div class="text-center mb-5">
         <img src="../assets/Vuelogo.png" alt="Image" height="50" class="mb-3">
         <div class="text-900 text-3xl font-medium mb-3">Welcome Back</div>
         <span class="text-600 font-medium line-height-3">Don't have an account?</span>
-        <RouterLink class="font-medium no-underline ml-2 text-blue-500 cursor-pointer router" to="/register">Create today!</RouterLink> 
+        <RouterLink class="font-medium no-underline ml-2 text-blue-500 cursor-pointer router" to="/register">Create
+          today!</RouterLink>
       </div>
 
       <div>
@@ -101,11 +142,11 @@ export default defineComponent({
           <div class="flex align-items-center">
             <!--<Checkbox id="rememberme1" :binary="true" v-model="checked" class="mr-2"></Checkbox>
             <label for="rememberme1">Remember me</label>-->
-          </div> 
+          </div>
           <a class="font-medium no-underline ml-2 text-blue-500 text-right cursor-pointer">Forgot password?</a>
         </div>
 
-        <Button @click="login()" label="Sign In" icon="pi pi-user" class="w-full"></Button>
+        <Button @click="emailAndPasswordLogin()" label="Sign In" icon="pi pi-user" class="w-full"></Button>
         <Divider />
         <div class="googleAuthContainer">
           <button @click="googleSignIn" class="login-with-google-btn">Sign In with Google</button>
@@ -117,6 +158,11 @@ export default defineComponent({
 </template>
 
 <style>
+.homeRouterButtonWrapper {
+  display: flex;
+  justify-content: end;
+}
+
 .loginViewWrapper {
   display: flex;
   justify-content: center;

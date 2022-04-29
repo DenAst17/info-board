@@ -1,19 +1,11 @@
-<script lang="ts">
-import HomeHeader from '@/components/HomeHeader.vue';
-import PostList from '@/components/PostList.vue';
-import { defineComponent } from 'vue'
-export default defineComponent ({
-  components: {
-    HomeHeader,
-    PostList
-  }
-})
+<script setup lang="ts">
+import NavigationHeader from "@/components/NavigationHeader.vue";
+import PostList from "@/components/PostList.vue";
 </script>
 
 <template>
-  <HomeHeader />
-  <PostList />
+  <NavigationHeader v-bind:isHomePage="true"/>
+  <PostList v-bind:isHomePage="true" />
 </template>
 
-<style>
-</style>
+<style></style>

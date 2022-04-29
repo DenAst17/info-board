@@ -1,17 +1,16 @@
 <script lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
-import Button from 'primevue/button';
-import InputText from 'primevue/inputtext';
 import { defineComponent } from 'vue'
 import { useStore } from '@/stores/store';
 import { mapStores } from 'pinia'
-import type { AnymatchFn } from 'vite';
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { firebase } from "../config/firebase";
 import Divider from 'primevue/divider';
 import Menu from 'primevue/menu';
 import Dialog from 'primevue/dialog';
 import Textarea from 'primevue/textarea';
+import Button from 'primevue/button';
+import InputText from 'primevue/inputtext';
 
 import router from "../router";
 
@@ -20,9 +19,9 @@ export default defineComponent({
         return {
             userName: "",
             display: false,
-            isLogin: false,
             postTitle: "",
             postText: "",
+            isLogin: false,
             searchText: "",
             items: [
 				{
@@ -145,12 +144,6 @@ export default defineComponent({
                     <Button type="button" @click="toggle">{{userName}}</Button>
                     <Menu ref="menu" :model="items" :popup="true" />
                 </div>
-              <!--  <div class = "login">
-                    <Button class="signOutButton" label="Sign Out" @click="signOut()" />
-                    <Button class="profileButton">
-                        <RouterLink class="router" to="/profile">Profile</RouterLink>
-                    </Button>
-                </div> -->
             </div>
         </div>
     </header>
