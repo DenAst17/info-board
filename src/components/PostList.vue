@@ -9,9 +9,11 @@ import InputText from 'primevue/inputtext';
 
 import { Post } from "@/entities/Post";
 import usePosts from "../composition/usePosts";
+import ConfirmDialog from 'primevue/confirmdialog';
 
 import { useStore } from '@/stores/store'
 import { mapStores } from 'pinia'
+import useUsers from "@/composition/useUsers";
 
 export default defineComponent({
   data() {
@@ -29,13 +31,17 @@ export default defineComponent({
   },
   computed: {
     ...mapStores(useStore),
+    simpleposts() {
+      return this.posts.slice(3);
+    }
   },
   components: {
     PostItem,
     InputText,
     Dialog,
     Textarea,
-    Button
+    Button,
+    ConfirmDialog
   },
   methods: {
     addPostDialogEnable() {
@@ -54,11 +60,13 @@ export default defineComponent({
       const title = this.postTitle;
       const reg_date = Date.now();
       const user_id = this.mainStore.loginUserID;
-      console.log(description,
+      const deleted_at = -1;
+      /*console.log(description,
         title,
         reg_date,
-        user_id);
+        user_id);*/
       u.addPost(new Post({
+        deleted_at,
         description,
         title,
         reg_date,
@@ -67,20 +75,71 @@ export default defineComponent({
       this.display = false;
       this.postTitle = "";
       this.postText = "";
+      router.push({ name: "home" });
+    },
+    deletePost(post: Post) {
+      this.$confirm.require({
+        message: 'Do you want to archive this post?',
+        header: 'Archive Confirmation',
+        icon: 'pi pi-info-circle',
+        acceptClass: 'p-button-danger',
+        accept: () => {
+          const u = usePosts();
+          post.deleted_at = Date.now();
+          u.searchID(post.title, this.mainStore.loginUserID).then((id)=>{
+            console.log(id);
+            u.setPost(post, id);
+          })
+          router.push({ name: "home" });
+          console.log(post);
+        },
+        reject: () => {
+          //console.log(post);
+        }
+      });
     }
   },
   setup(props) {
     const query = router.currentRoute.value.query;
     const search = ref(query?.search);
     const { posts, isLoading, search: searchPosts } = usePosts(query);
+    const { getAllUsers } = useUsers();
     const store = useStore();
     function localSearch() {
+      let secondSearchQuery = "";
       if (props.isHomePage) {
-        searchPosts(search.value as string);
+        if (search.value == '') {
+          document.location.reload();
+        }
       }
       else {
-        searchPosts(search.value as string, store.loginUserID as string);
+        secondSearchQuery = store.loginUserID as string;
       }
+      searchPosts(search.value as string, secondSearchQuery).then((_res: any) => {
+        //console.log(posts.value);
+        getAllUsers().then((userDocs) => {
+          //console.log(userDocs[0].id, userDocs[0].data());
+          let notArchivedPosts = []
+          for (let i = 0; i < posts.value.length; i++){
+            if(posts.value[i].deleted_at == -1)
+            {
+              notArchivedPosts.push(posts.value[i]);
+              console.log(i);
+            }
+          }
+          posts.value = notArchivedPosts;
+          for (let i = 0; i < posts.value.length; i++) { // If posts user_id propety the same as a user's id then user_id = username for UI output
+            for (let j = 0; j < userDocs.length; j++) {
+              if (posts.value[i].user_id == userDocs[j].id) {
+                posts.value[i].user_id = userDocs[j].data().user_name;
+                break;
+              }
+            }
+          }
+          isLoading.value = false;
+          console.log(posts);
+        })
+      })
     }
     localSearch();
 
@@ -95,6 +154,7 @@ export default defineComponent({
 </script>
 
 <template>
+  <ConfirmDialog></ConfirmDialog>
   <div v-if="isLoading">Loading...</div>
   <Teleport to="#navigation_header">
     <div>
@@ -122,8 +182,33 @@ export default defineComponent({
       <Button label="Create" @click="createPost()" icon="pi pi-check" autofocus />
     </template>
   </Dialog>
-  <template v-for="item in posts" :key="item.id">
-    <PostItem v-bind:post="item" />
+  <!-- homePostsWrappers are for home posts display -->
+  <!--<div class="homePostsWrapper" v-if="(this as any).isHomePage">
+    <div class="bigPostItemWrapper">
+      <div v-if="posts.length > 0">
+        <PostItem class="postItem bigPostItem" v-bind:post="posts[0]" />
+      </div>
+    </div>
+    <div>
+      <template v-if="posts.length > 1">
+        <PostItem class="postItem" v-bind:post="posts[1]" />
+      </template>
+      <template v-if="posts.length > 2">
+        <PostItem class="postItem" v-bind:post="posts[2]" />
+      </template>
+    </div>
+  </div>-->
+
+  <div v-if="!isLoading" class="homeSimplePostsWrapper">
+    <template v-if="(this as any).isHomePage" v-for="(item, index) in posts" :key="item.id">
+      <PostItem class="simplePostItem" v-bind:post="item" v-bind:isHomePage="isHomePage" />
+    </template>
+  </div>
+
+  <template v-if="!isLoading && !(this as any).isHomePage" v-for="(item, index) in posts" :key="item.id">
+    <!-- It's for Activities Page -->
+    <PostItem class="postItem" v-bind:post="item" v-bind:isHomePage="isHomePage"
+      @remove="post => deletePost(post)" />
   </template>
 
 </template>
@@ -181,7 +266,56 @@ export default defineComponent({
 }
 
 .postTextArea {
-  margin-top: 5px;
+  margin-top: 5px !important;
   width: 100%;
+}
+
+.postItem {
+  width: 100%;
+  margin: 10px;
+}
+
+.homePostsWrapper {
+  display: flex;
+}
+
+.postItemWrapper {
+  width: 100%;
+}
+
+.bigPostItem {
+  height: 100%;
+}
+
+.bigPostItemWrapper {
+  width: 50%;
+  display: flex;
+  align-items: center;
+}
+
+
+.homeSimplePostsWrapper {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.simplePostItem {
+  width: 30%;
+  margin: 10px 0px 10px 0px;
+}
+
+@media (max-width: 2000px) {
+  .simplePostItem {
+    width: 48%;
+    margin: 10px 0px 10px 0px;
+  }
+}
+
+@media (max-width: 1000px) {
+  .simplePostItem {
+    width: 100%;
+    margin: 10px 0px 10px 0px;
+  }
 }
 </style>

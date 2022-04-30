@@ -13,12 +13,13 @@ export default defineComponent({
   data() {
     return {
       count: 1,
-      posts: undefined,
-      userName: ""
+      posts: undefined
     }
   },
+  emits: ["remove", "edit"],
   props: {
-    post: Post
+    post: Post,
+    isHomePage: Boolean
   },
   components: {
     Card,
@@ -32,47 +33,54 @@ export default defineComponent({
       var d = new Date();
       d.setTime(ts);
       return ('0' + d.getDate()).slice(-2) + '.' + ('0' + (d.getMonth() + 1)).slice(-2) + '.' + d.getFullYear();
-    }
+    },
   },
   mounted() {
-    const u = useUsers();
-    u.getUser(this.post?.user_id as string).then((res)=>{
-      if(res){
-        //console.log(res);
-        this.userName = res.user_name as string;
-      }
-    })
-    // ...
+    
   }
 })
 </script>
 
 <template>
-  <Card>
-    <template #header>
-    </template>
-    <template #title>
-      {{ (post as unknown).title }}
-    </template>
-    <template #content>
-      {{ (post as unknown).description }}
-    </template>
-    <template #footer>
-      <div class="postFooter">
-        <div>
-          {{ userName }}
+  <div class="postWrapper">
+    <Card class="postCard">
+      <template #header>
+      </template>
+      <template #title>
+        {{ (post as unknown).title }}
+      </template>
+      <template #content>
+        {{ (post as unknown).description }}
+      </template>
+      <template #footer>
+        <div class="postFooter">
+          <div>
+            {{ post?.user_id }}
+          </div>
+          <div class="postDate">
+            {{ timestampToDate((post as unknown).reg_date) }}
+          </div>
         </div>
-        <div class="postDate">
-          {{ timestampToDate((post as unknown).reg_date) }}
-        </div>
-      </div>
-    </template>
-  </Card>
+      </template>
+    </Card>
+    <div v-if="!(this as any).isHomePage">
+      <Button @click="$emit('remove', post)" icon="pi pi-times" label="Archive"></Button>
+    </div>
+  </div>
+
 </template>
 
 <style>
 .postFooter {
   display: flex;
   justify-content: space-between;
+}
+
+.postWrapper {
+  display: flex;
+}
+
+.postCard {
+  flex-grow: 1;
 }
 </style>

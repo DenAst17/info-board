@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { QueryConstraint } from "@firebase/firestore";
+import type { QueryDocumentSnapshot, DocumentData } from "@firebase/firestore";
 import { where } from "firebase/firestore";
 import { User } from "@/entities/User";
 import { UsersCollection } from "@/database/users";
@@ -28,6 +28,17 @@ export default function useUsers() {
       })
   }
 
+  async function getAllUsers(){
+    const allUsers = await usersFirestore.getAll();
+    let userDocs: QueryDocumentSnapshot<DocumentData>[] = [];
+    allUsers.forEach((doc) => {
+      // doc.data() is never undefined for query doc snapshots
+      //console.log(doc.id, " => ", doc.data());
+      userDocs.push(doc);
+    });
+    return userDocs;
+  }
+
   function addUser(user: User) {
     return usersFirestore.create(user);
   }
@@ -47,6 +58,7 @@ export default function useUsers() {
     search,
     addUser,
     setUser,
-    getUser
+    getUser,
+    getAllUsers
   };
 }

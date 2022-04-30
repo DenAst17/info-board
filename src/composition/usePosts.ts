@@ -14,8 +14,21 @@ export default function usePosts(query: Record<string, unknown> = {}) {
     return postsFirestore.create(post);
   }
 
+  function setPost(post: Post, id: string) {
+    postsFirestore.update(post, id);
+  }
+
+  function deletePost(id:string){
+    return postsFirestore.remove(id);
+  }
+
+  async function getAllPosts(){
+    const allPosts = await postsFirestore.getAll();
+    return allPosts;
+  }
+
   function effectiveSearch(searchQuery?: string, secondSearchQuery?:string) {
-    if (arguments.length == 1 || !secondSearchQuery) {
+    if (arguments.length == 1 || !secondSearchQuery || secondSearchQuery == "") {
       if (searchQuery) {
         return postsFirestore.search(where("title", "==", searchQuery));
       }
@@ -31,26 +44,32 @@ export default function usePosts(query: Record<string, unknown> = {}) {
       return postsFirestore.search();
     }
   }
-
+  
   function search(searchQuery?: string, secondSearchQuery?:string) {
     isLoading.value = true;
-    console.log(secondSearchQuery);
-    effectiveSearch(searchQuery, secondSearchQuery)
+    //console.log(secondSearchQuery);
+    return effectiveSearch(searchQuery, secondSearchQuery)
       .then((res) => {
         response.value = res;
         posts.value = res.docs.map((doc) => new Post(doc.data()));
-        console.log("value = ",posts.value);
+        //console.log("value = ",posts.value);
       })
-      .finally(() => {
-        isLoading.value = false;
-      });
   }
-
+  function searchID(searchQuery?: string, secondSearchQuery?:string){
+    return effectiveSearch(searchQuery, secondSearchQuery)
+      .then((res)=>{
+        return res.docs[0].id;
+    })    
+  }
   return {
     posts,
     postsFirestore,
     isLoading,
     search,
-    addPost
+    searchID,
+    addPost,
+    deletePost,
+    setPost,
+    getAllPosts
   };
 }

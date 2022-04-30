@@ -24,12 +24,13 @@ export abstract class BaseDatabase {
     return this.collection;
   }
   async getAll() {
+    console.log("AllDocs earned");
     return getDocs(this.collection);
   }
   async getByID(id: string) {
     const docRef = doc(this.collection, id);
     const docSnap = await getDoc(docRef);
-    //console.log(docSnap.data());
+    console.log("1 Document earned:", docSnap.data());
     return docSnap.data();
   }
   async create(document: User|Post) {
@@ -38,7 +39,7 @@ export abstract class BaseDatabase {
     return docRef;
   }
   async update(document: User|Post, id: string) {
-    const docRef = await setDoc(doc(this.collection, id), document.docObject);
+    await setDoc(doc(this.collection, id), document.docObject);
     console.log("Document updated with ID: ", id);
   }
   async remove(id: string) {
@@ -47,6 +48,7 @@ export abstract class BaseDatabase {
   }
   async search(...queryConstraints: QueryConstraint[]) {
     const docs = getDocs(query(this.collection, ...queryConstraints));
+    //console.log("Search completed");
     return docs;
   }
 }

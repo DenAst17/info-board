@@ -99,7 +99,7 @@ export default defineComponent({
                     this.isLogin = true;
                 })
                 this.mainStore.loginInfo = user;
-                console.log("User logged = ", user);
+                //console.log("User logged = ", user);
                 // ...
             } else {
                 this.isLogin = false;

@@ -89,9 +89,9 @@ export default defineComponent({
           u.search(email as string).then(() => {
             if (u.users.value.length > 0) {
               this.mainStore.loginUserID = u.usersID[0];
-              console.log(this.mainStore.loginUserID);
+              //console.log(this.mainStore.loginUserID);
             }
-            console.log(user);
+            //console.log(user);
             router.push({ name: "home" });
           })
           // ...

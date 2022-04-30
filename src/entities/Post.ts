@@ -13,6 +13,7 @@ export class Post extends BaseEntity {
 
   get docObject(){
     return {
+      deleted_at: this.deleted_at,
       description: this.description,
       title: this.title,
       reg_date: this.reg_date,
@@ -24,8 +25,9 @@ export class Post extends BaseEntity {
     return `Author: Vas`;
   }
 
+  deleted_at: number | undefined
   description: string | undefined;
   title: string | undefined;
-  reg_date: string | Date | undefined;
+  reg_date: string | number | Date | undefined;
   user_id: string | undefined;
 }
