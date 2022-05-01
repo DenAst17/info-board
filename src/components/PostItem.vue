@@ -63,8 +63,9 @@ export default defineComponent({
         </div>
       </template>
     </Card>
-    <div v-if="!(this as any).isHomePage">
-      <Button @click="$emit('remove', post)" icon="pi pi-times" label="Archive"></Button>
+    <div class = 'postButtons' v-if="!(this as any).isHomePage">
+      <Button class = "actionButton" @click="$emit('remove', post)" icon="pi pi-times" label="Archive"></Button>
+      <Button class = "actionButton" @click="$emit('edit', post)" icon="pi pi-times" label="Edit"></Button>
     </div>
   </div>
 
@@ -82,5 +83,13 @@ export default defineComponent({
 
 .postCard {
   flex-grow: 1;
+}
+.actionButton{
+  height: 45%;
+}
+.postButtons{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 </style>

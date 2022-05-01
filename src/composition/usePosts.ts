@@ -61,6 +61,9 @@ export default function usePosts(query: Record<string, unknown> = {}) {
         return res.docs[0].id;
     })    
   }
+  function getPost(id:string){
+    return postsFirestore.getByID(id);
+  }
   return {
     posts,
     postsFirestore,
@@ -70,6 +73,7 @@ export default function usePosts(query: Record<string, unknown> = {}) {
     addPost,
     deletePost,
     setPost,
-    getAllPosts
+    getAllPosts,
+    getPost
   };
 }

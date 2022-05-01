@@ -15,15 +15,19 @@ import { useStore } from '@/stores/store'
 import { mapStores } from 'pinia'
 import useUsers from "@/composition/useUsers";
 
+import {debounce} from "lodash";
+import type { DocumentData } from "@firebase/firestore";
+
 export default defineComponent({
   data() {
     return {
-      display: false,
+      displayDialogCreate: false,
+      displayDialogEdit: false,
       postTitle: "",
       postText: "",
       isLogin: false,
       searchText: "",
-
+      editedPost: {} as Post
     };
   },
   props: {
@@ -44,13 +48,23 @@ export default defineComponent({
     ConfirmDialog
   },
   methods: {
-    addPostDialogEnable() {
-      this.display = true;
+    /*debounceSearch2: debounce(function () {
+      this.localSearch();
+    }, 1000),*/
+    addDialogCreateEnable() {
+      this.displayDialogCreate = true;
       this.postTitle = "";
       this.postText = "";
     },
+    addDialogEditEnable(post: Post) {
+      this.displayDialogEdit = true;
+      this.editedPost = post as Post;
+      this.postTitle = post.title as string;
+      this.postText = post.description as string;
+    },
     cancel() {
-      this.display = false;
+      this.displayDialogCreate = false;
+      this.displayDialogEdit = false;
       this.postTitle = "";
       this.postText = "";
     },
@@ -72,9 +86,7 @@ export default defineComponent({
         reg_date,
         user_id
       }))
-      this.display = false;
-      this.postTitle = "";
-      this.postText = "";
+      this.cancel();
       router.push({ name: "home" });
     },
     deletePost(post: Post) {
@@ -86,7 +98,7 @@ export default defineComponent({
         accept: () => {
           const u = usePosts();
           post.deleted_at = Date.now();
-          u.searchID(post.title, this.mainStore.loginUserID).then((id)=>{
+          u.searchID(post.title, this.mainStore.loginUserID).then((id) => {
             console.log(id);
             u.setPost(post, id);
           })
@@ -97,6 +109,20 @@ export default defineComponent({
           //console.log(post);
         }
       });
+    },
+    editPost() {
+      const u = usePosts();
+      u.searchID(this.editedPost.title, this.mainStore.loginUserID).then((id) => {
+        u.getPost(id).then((doc)=>{
+          this.editedPost.title = this.postTitle;
+          this.editedPost.description = this.postText;
+          this.editedPost.user_id = (doc as DocumentData).user_id;
+          //console.log(this.editedPost);
+          u.setPost(this.editedPost, id);
+          this.cancel();
+          router.push({ name: "home" });
+        })
+      })
     }
   },
   setup(props) {
@@ -120,11 +146,10 @@ export default defineComponent({
         getAllUsers().then((userDocs) => {
           //console.log(userDocs[0].id, userDocs[0].data());
           let notArchivedPosts = []
-          for (let i = 0; i < posts.value.length; i++){
-            if(posts.value[i].deleted_at == -1)
-            {
+          for (let i = 0; i < posts.value.length; i++) {
+            if (posts.value[i].deleted_at == -1) {
               notArchivedPosts.push(posts.value[i]);
-              console.log(i);
+              //console.log(i);
             }
           }
           posts.value = notArchivedPosts;
@@ -137,7 +162,7 @@ export default defineComponent({
             }
           }
           isLoading.value = false;
-          console.log(posts);
+          //console.log(posts);
         })
       })
     }
@@ -148,6 +173,7 @@ export default defineComponent({
       isLoading,
       search,
       localSearch,
+      debounceSearch: debounce(localSearch, 200)
     };
   },
 });
@@ -158,15 +184,17 @@ export default defineComponent({
   <div v-if="isLoading">Loading...</div>
   <Teleport to="#navigation_header">
     <div>
-      <Button v-if="!(this as any).isHomePage" class="addPostButton" label="Add post" @click="addPostDialogEnable()" />
+      <Button v-if="!(this as any).isHomePage" class="addPostButton" label="Add post"
+        @click="addDialogCreateEnable()" />
     </div>
     <span class="p-input-icon-left">
       <i class="pi pi-search" />
       <InputText class="searchInput" type="text" placeholder="Search" v-model="(search as string)"
-        @input="localSearch()" />
+        @input="debounceSearch" />
     </span>
   </Teleport>
-  <Dialog v-model:visible="display" :breakpoints="{ '10000px': '50vw', '1200px': '75vw', '640px': '100vw' }">
+  <Dialog v-model:visible="displayDialogCreate"
+    :breakpoints="{ '10000px': '50vw', '1200px': '75vw', '640px': '100vw' }">
     <template #header>
       <span class="p-float-label">
         <InputText id="username" type="text" v-model="postTitle" />
@@ -180,6 +208,23 @@ export default defineComponent({
     <template #footer>
       <Button label="Cancel" @click="cancel()" icon="pi pi-times" class="p-button-text" />
       <Button label="Create" @click="createPost()" icon="pi pi-check" autofocus />
+    </template>
+  </Dialog>
+  <Dialog v-model:visible="displayDialogEdit"
+    :breakpoints="{ '10000px': '50vw', '1200px': '75vw', '640px': '100vw' }">
+    <template #header>
+      <span class="p-float-label">
+        <InputText id="username" type="text" v-model="postTitle" />
+        <label for="username">Title</label>
+      </span>
+    </template>
+
+    <Textarea class="postTextArea" v-model="postText" :autoResize="true" rows="5" cols="30"
+      placeholder="Write your post here" />
+
+    <template #footer>
+      <Button label="Cancel" @click="cancel()" icon="pi pi-times" class="p-button-text" />
+      <Button label="Confirm" @click="editPost()" icon="pi pi-check" autofocus />
     </template>
   </Dialog>
   <!-- homePostsWrappers are for home posts display -->
@@ -207,8 +252,8 @@ export default defineComponent({
 
   <template v-if="!isLoading && !(this as any).isHomePage" v-for="(item, index) in posts" :key="item.id">
     <!-- It's for Activities Page -->
-    <PostItem class="postItem" v-bind:post="item" v-bind:isHomePage="isHomePage"
-      @remove="post => deletePost(post)" />
+    <PostItem class="postItem" v-bind:post="item" v-bind:isHomePage="isHomePage" @remove="post => deletePost(post)"
+      @edit="post => addDialogEditEnable(post)" />
   </template>
 
 </template>
