@@ -47,10 +47,10 @@ export default defineComponent({
       <template #header>
       </template>
       <template #title>
-        {{ (post as unknown).title }}
+        {{ (post as Post).title }}
       </template>
       <template #content>
-        {{ (post as unknown).description }}
+        {{ (post as Post).description }}
       </template>
       <template #footer>
         <div class="postFooter">
@@ -58,12 +58,12 @@ export default defineComponent({
             {{ post?.user_id }}
           </div>
           <div class="postDate">
-            {{ timestampToDate((post as unknown).reg_date) }}
+            {{ timestampToDate((post as Post).reg_date as any) }}
           </div>
         </div>
       </template>
     </Card>
-    <div class = 'postButtons' v-if="!(this as any).isHomePage">
+    <div class = 'postButtons' v-if="!isHomePage">
       <Button class = "actionButton" @click="$emit('remove', post)" icon="pi pi-times" label="Archive"></Button>
       <Button class = "actionButton" @click="$emit('edit', post)" icon="pi pi-times" label="Edit"></Button>
     </div>

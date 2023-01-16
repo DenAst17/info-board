@@ -121,7 +121,7 @@ export default defineComponent({
             </Button>
         </div>
         <div v-show="isLogin" class="profile">
-            <div class="menu" v-if="(this as any).isHomePage">
+            <div class="menu" v-if="isHomePage">
                 <Button type="button" @click="toggle">{{ userName }}</Button>
                 <Menu ref="menu" :model="items" :popup="true" />
             </div>

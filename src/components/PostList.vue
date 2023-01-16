@@ -184,7 +184,7 @@ export default defineComponent({
   <div v-if="isLoading">Loading...</div>
   <Teleport to="#navigation_header">
     <div>
-      <Button v-if="!(this as any).isHomePage" class="addPostButton" label="Add post"
+      <Button v-if="!isHomePage" class="addPostButton" label="Add post"
         @click="addDialogCreateEnable()" />
     </div>
     <span class="p-input-icon-left">
@@ -245,12 +245,12 @@ export default defineComponent({
   </div>-->
 
   <div v-if="!isLoading" class="homeSimplePostsWrapper">
-    <template v-if="(this as any).isHomePage" v-for="(item, index) in posts" :key="item.id">
+    <template v-if="isHomePage" v-for="(item, index) in posts" :key="item.id">
       <PostItem class="simplePostItem" v-bind:post="item" v-bind:isHomePage="isHomePage" />
     </template>
   </div>
 
-  <template v-if="!isLoading && !(this as any).isHomePage" v-for="(item, index) in posts" :key="item.id">
+  <template v-if="!isLoading && !isHomePage" v-for="(item, index) in posts" :key="item.id">
     <!-- It's for Activities Page -->
     <PostItem class="postItem" v-bind:post="item" v-bind:isHomePage="isHomePage" @remove="post => deletePost(post)"
       @edit="post => addDialogEditEnable(post)" />

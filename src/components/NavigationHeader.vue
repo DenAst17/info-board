@@ -35,7 +35,7 @@ export default defineComponent({
     </nav>
 
     <div class="wrapper__login" id="login_header">
-      <NavigationMenu v-bind:isHomePage='(this as any).isHomePage'></NavigationMenu>
+      <NavigationMenu v-bind:isHomePage='isHomePage'></NavigationMenu>
     </div>
   </header>
 </template>
